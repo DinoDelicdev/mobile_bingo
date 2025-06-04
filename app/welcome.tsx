@@ -1,18 +1,19 @@
 // app/welcome.tsx
+import Copyright from "@/components/copyright/Copyright";
 import { Colors } from "@/constants/Colors";
 import { Images } from "@/constants/Images";
 import {
-    Montserrat_400Regular,
-    Montserrat_500Medium,
-    Montserrat_800ExtraBold,
-    useFonts,
+  Montserrat_400Regular,
+  Montserrat_500Medium,
+  Montserrat_800ExtraBold,
+  useFonts,
 } from "@expo-google-fonts/montserrat";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 function WelcomeScreen() {
@@ -24,7 +25,11 @@ function WelcomeScreen() {
   });
 
   const handleGetStarted = () => {
-    router.replace("/(tabs)");
+    router.push("/(tabs)");
+  };
+
+  const handleRouteToLogin = () => {
+    router.push("/login");
   };
 
   if (!fontsLoaded) {
@@ -54,37 +59,50 @@ function WelcomeScreen() {
         </Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.buttonsShared, styles.loginButton]}>
+        <TouchableOpacity
+          style={[styles.buttonsShared, styles.loginButton]}
+          onPress={handleRouteToLogin}
+        >
           <Text
             style={[
               styles.buttonTextShared,
+              styles.buttonLoginText,
               { fontFamily: "Montserrat_500Medium" },
             ]}
           >
-            Prijavi se
+            Prijavite se
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.buttonsShared, styles.registerButton]}>
           <Text
             style={[
               styles.buttonTextShared,
+              styles.buttonRegisterText,
               { fontFamily: "Montserrat_500Medium" },
             ]}
           >
-            Prijavi se
+            Kreirajte nalog
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonsShared}>
+        <TouchableOpacity
+          style={styles.buttonsShared}
+          onPress={handleGetStarted}
+        >
           <Text
             style={[
               styles.buttonTextShared,
+              styles.buttonRegisterText,
               { fontFamily: "Montserrat_500Medium" },
             ]}
           >
-            Prijavi se
+            Nastavi kao gost
           </Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.copyrightContainer}>
+        
+      </View>
+      <Copyright isWhite />
     </SafeAreaView>
   );
 }
@@ -128,7 +146,7 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     height: "25%",
-    gap: 10,
+    gap: 15,
     justifyContent: "space-between",
     width: "85%",
   },
@@ -147,5 +165,16 @@ const styles = StyleSheet.create({
   },
   buttonTextShared: {
     fontSize: 15,
+  },
+  buttonLoginText: {
+    color: Colors.bingo_main,
+  },
+  buttonRegisterText: {
+    color: "white",
+  },
+  copyrightContainer: {
+    // backgroundColor: "red",
+    height: "30%",
+    justifyContent: "flex-end",
   },
 });
