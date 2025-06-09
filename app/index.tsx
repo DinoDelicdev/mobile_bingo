@@ -32,6 +32,10 @@ function WelcomeScreen() {
     router.push("/login");
   };
 
+  const handleRouteToRegister = () => {
+    router.push("/register");
+  };
+
   if (!fontsLoaded) {
     return null;
   }
@@ -73,7 +77,10 @@ function WelcomeScreen() {
             Prijavite se
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.buttonsShared, styles.registerButton]}>
+        <TouchableOpacity
+          style={[styles.buttonsShared, styles.registerButton]}
+          onPress={handleRouteToRegister}
+        >
           <Text
             style={[
               styles.buttonTextShared,
@@ -99,9 +106,7 @@ function WelcomeScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.copyrightContainer}>
-        
-      </View>
+      <View style={styles.copyrightContainer}></View>
       <Copyright isWhite />
     </SafeAreaView>
   );

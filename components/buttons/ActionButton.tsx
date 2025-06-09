@@ -11,9 +11,14 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface ActionButtonProp {
   buttonText: string;
   action: () => void;
+  disabled?: boolean;
 }
 
-const ActionButton: React.FC<ActionButtonProp> = ({ buttonText, action }) => {
+const ActionButton: React.FC<ActionButtonProp> = ({
+  buttonText,
+  action,
+  disabled = false,
+}) => {
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
     Montserrat_400Regular,
@@ -25,7 +30,11 @@ const ActionButton: React.FC<ActionButtonProp> = ({ buttonText, action }) => {
   }
 
   return (
-    <TouchableOpacity style={styles.container} onPress={action}>
+    <TouchableOpacity
+      style={[styles.container, disabled ? { opacity: 0.7 } : ""]}
+      onPress={action}
+      disabled={disabled}
+    >
       <Text style={[styles.text, { fontFamily: "Montserrat_500Medium" }]}>
         {buttonText}
       </Text>

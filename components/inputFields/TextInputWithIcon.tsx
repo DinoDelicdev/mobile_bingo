@@ -11,7 +11,7 @@ interface TextInputWithIconPropType {
   placeholderText: string;
   iconSource: React.ReactNode;
   handler: (text: string) => void;
-  inputType: "emailAddress" | "password";
+  inputType: "emailAddress" | "password" | "telephoneNumber";
   isError?: boolean;
   value: string;
   onEndEditing?: () => void;
@@ -58,6 +58,7 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
           value={value}
           secureTextEntry={inputType === "password"}
           onEndEditing={onEndEditing}
+          keyboardType={inputType === "telephoneNumber" ? "phone-pad" : "default"}
         />
       </View>
       {isError ? inputType === "emailAddress" ? <Text>Uneseni email nije u pravom formatu</Text> : <Text>Sifra mora biti duga najmanje 6 karaktera</Text> : ""}

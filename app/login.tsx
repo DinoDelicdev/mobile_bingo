@@ -31,14 +31,29 @@ const LoginPage = () => {
     Montserrat_500Medium,
   });
 
+  useEffect(() => {
+    setUserEmail(""); 
+    setUserPassword(""); 
+    setIsEmailError(false);
+    setIsPasswordError(false); 
+  }, []); 
+
+ 
+
   const handleLogin = () => {
-    // TO DO: Backend logic
-    router.push("/(tabs)");
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+
+    if (isEmailValid && isPasswordValid) {
+      console.log("Attempting to log in with:", userEmail, userPassword);
+      router.push("/(tabs)");
+    } else {
+      console.log("Login failed due to validation errors.");
+    }
   };
 
   const handleSetUserEmail = (text: string) => {
     setUserEmail(text);
-
     if (isEmailError) {
       setIsEmailError(false);
     }
@@ -56,10 +71,6 @@ const LoginPage = () => {
   };
 
   const validateEmail = () => {
-    if (!userEmail) {
-      setIsEmailError(false);
-      return;
-    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValid = emailRegex.test(userEmail);
     setIsEmailError(!isValid);
@@ -67,7 +78,7 @@ const LoginPage = () => {
   };
 
   const validatePassword = () => {
-    const isValid = userPassword.length >= 6;
+    const isValid = userPassword.length >= 6; 
     setIsPasswordError(!isValid);
     return isValid;
   };
@@ -91,9 +102,12 @@ const LoginPage = () => {
     return null;
   }
 
+  const isLoginButtonDisabled =
+    !userEmail || !userPassword || isEmailError || isPasswordError;
+
   return (
     <SafeAreaView style={{ alignItems: "center", flex: 1 }}>
-      {!keyboardShown && <OvalHeaders headerText="Prijava" />}
+      <OvalHeaders isKeyboardDisplayed={keyboardShown} headerText="Prijava" />
       {!keyboardShown && (
         <View style={styles.textContainer}>
           <Text
@@ -126,22 +140,26 @@ const LoginPage = () => {
           iconSource={<Ionicons name="mail" size={20} />}
           handler={handleSetUserEmail}
           inputType="emailAddress"
-          value={userEmail} 
-          isError={isEmailError} 
-          onEndEditing={validateEmail} 
+          value={userEmail}
+          isError={isEmailError}
+          onEndEditing={validateEmail}
         />
         <TextInputWithIcon
           placeholderText="Vaša lozinka"
           iconSource={<Ionicons name="lock-closed" size={20} />}
           handler={handleSetUserPassword}
           inputType="password"
-          value={userPassword} 
-          isError={isPasswordError} 
-          onEndEditing={validatePassword} 
+          value={userPassword}
+          isError={isPasswordError}
+          onEndEditing={validatePassword}
         />
       </View>
       <View style={styles.buttonsContainer}>
-        <ActionButton buttonText={"Prijavite se"} action={handleLogin} />
+        <ActionButton
+          buttonText={"Prijavite se"}
+          action={handleLogin}
+          disabled={isLoginButtonDisabled}
+        />
         <ActionButton
           buttonText={"Registrujte se"}
           action={handleRoutingToRegister}
@@ -159,8 +177,6 @@ const styles = StyleSheet.create({
     marginTop: height / 3.6,
     height: "12%",
     width: "85%",
-    // borderBottomWidth: 1.5,
-    // borderBottomColor: "lightgray",
   },
   titleText: {
     fontSize: 22,
