@@ -5,22 +5,26 @@ import {
   useFonts,
 } from "@expo-google-fonts/montserrat";
 import React from "react";
-import {
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 interface TextInputWithIconPropType {
   placeholderText: string;
-  iconSource: ImageSourcePropType;
+  iconSource: React.ReactNode;
+  handler: (text: string) => void;
+  inputType: "emailAddress" | "password";
+  isError?: boolean;
+  value: string;
+  onEndEditing?: () => void;
 }
 
 const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
   placeholderText,
   iconSource,
+  handler,
+  inputType,
+  isError = false,
+  value,
+  onEndEditing,
 }) => {
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
@@ -28,15 +32,35 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
     Montserrat_500Medium,
   });
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Image source={iconSource} style={styles.icon} />
-      <TextInput
-        style={[styles.input, {fontFamily: "Montserrat_500Medium"}]}
-        placeholder={placeholderText}
-        keyboardAppearance="light"
-        scrollEnabled={true}
-      />
+    <View>
+      <View
+        style={[
+          styles.container,
+          {
+            borderWidth: isError ? 2 : 0,
+            borderColor: isError ? "red" : "transparent",
+          },
+        ]}
+      >
+        <View style={styles.icon}>{iconSource}</View>
+        <TextInput
+          style={[styles.input, { fontFamily: "Montserrat_500Medium" }]}
+          placeholder={placeholderText}
+          keyboardAppearance="light"
+          scrollEnabled={true}
+          textContentType={inputType}
+          onChangeText={handler}
+          value={value}
+          secureTextEntry={inputType === "password"}
+          onEndEditing={onEndEditing}
+        />
+      </View>
+      {isError ? inputType === "emailAddress" ? <Text>Uneseni email nije u pravom formatu</Text> : <Text>Sifra mora biti duga najmanje 6 karaktera</Text> : ""}
     </View>
   );
 };
@@ -45,8 +69,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    // borderWidth: 1,
-    // borderColor: Colors.bingo_black,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 5,

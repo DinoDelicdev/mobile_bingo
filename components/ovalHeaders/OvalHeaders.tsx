@@ -3,11 +3,11 @@ import { Montserrat_700Bold, useFonts } from "@expo-google-fonts/montserrat";
 import { Image } from "expo-image";
 import React from "react";
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -15,22 +15,29 @@ const { width, height } = Dimensions.get("window");
 interface OvalHeadersProps {
   headerText?: string;
   adjustRight?: number;
+  isKeyboardDisplayed?: boolean;
 }
 
 const OvalHeaders: React.FC<OvalHeadersProps> = ({
-  headerText = "Testni text", adjustRight = 0
+  headerText = "Testni text",
+  adjustRight = 0,
+  isKeyboardDisplayed = false,
 }) => {
   const [fontsLoaded] = useFonts({
     Montserrat_700Bold,
   });
-
 
   if (!fontsLoaded) {
     return null;
   }
 
   return (
-    <View style={[styles.container, {paddingRight: adjustRight ? 40 + adjustRight : 40}]}>
+    <View
+      style={[
+        styles.container,
+        { paddingRight: adjustRight ? 40 + adjustRight : 40 },
+      ]}
+    >
       <TouchableOpacity style={styles.iconContainer}>
         <Image
           source={Icons.chevronBack}
@@ -38,7 +45,7 @@ const OvalHeaders: React.FC<OvalHeadersProps> = ({
         />
       </TouchableOpacity>
       <View style={styles.textContainer}>
-        <Text style={{ color: "white", fontSize: 20, fontFamily: "Montserrat_700Bold" }}>{headerText}</Text>
+        <Text style={styles.text}>{headerText}</Text>
       </View>
     </View>
   );
@@ -47,7 +54,7 @@ const OvalHeaders: React.FC<OvalHeadersProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: width + width * 0.3,
-    height: height / 3.2,
+    height: height / 3.3,
     borderBottomLeftRadius: width,
     borderBottomRightRadius: width * 3,
     // transform: [{ rotate: "-10.73deg" }],
@@ -68,15 +75,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: "40%",
-    
   },
   iconContainer: {
+    marginTop: "10%",
     width: 15,
     height: 22,
     // backgroundColor: "red",
     // transform: [{ rotate: "10.73deg" }],
   },
-  textContainer: {},
+  textContainer: {
+    marginTop: "10%",
+  },
+  text: {
+    color: "white",
+    fontSize: 20,
+    fontFamily: "Montserrat_700Bold",
+  },
 });
 
 export default OvalHeaders;
