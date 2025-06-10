@@ -4,6 +4,7 @@ import SexPicker from "@/components/inputFields/SexPicker";
 import TextInputWithIcon from "@/components/inputFields/TextInputWithIcon";
 import OvalHeaders from "@/components/ovalHeaders/OvalHeaders";
 import { Colors } from "@/constants/Colors";
+import { BACKEND_ADDRESS } from "@/secrets/secrets";
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
@@ -66,8 +67,7 @@ const LoginPage = () => {
   };
 
   const validateConfirmedPassword = () => {
-    const isValid =
-      userPassword === confirmedPassword && confirmedPassword.length > 0;
+    const isValid = userPassword === confirmedPassword;
     setIsConfirmedPasswordError(!isValid);
     return isValid;
   };
@@ -85,7 +85,7 @@ const LoginPage = () => {
     return isValid;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     const isNameValid = validateUserName();
     const isPhoneValid = validatePhoneNumber();
     const isEmailValid = validateEmail();
@@ -99,7 +99,39 @@ const LoginPage = () => {
       isPasswordValid &&
       isConfirmPasswordValid
     ) {
-      console.log("Attempting to register with:", userName, userEmail, userPhoneNumber, userPassword, confirmedPassword, selectedSex, birthDate);
+      console.log(
+        "Attempting to register with:",
+        userName,
+        userEmail,
+        userPhoneNumber,
+        userPassword,
+        confirmedPassword,
+        selectedSex,
+        birthDate
+      );
+
+      const registrationFetchResponse = await fetch(
+        `${BACKEND_ADDRESS}/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: userName,
+            email: userEmail,
+            phoneNumber: userPhoneNumber,
+            password: userPassword,
+            birthDate: birthDate ? birthDate.toISOString().split("T")[0] : null,
+            sex: selectedSex,
+          }),
+        }
+      );
+
+      if (!registrationFetchResponse.ok) {
+        console.error("Registration failed:", registrationFetchResponse.status);
+        return;
+      }
       router.push("/(tabs)");
     } else {
       console.log("Registration failed due to validation errors.");
@@ -140,7 +172,7 @@ const LoginPage = () => {
 
   const handleSettingFocusedInput = (focused: boolean) => {
     setFocusedInput(focused);
-  }
+  };
 
   useEffect(() => {
     const subscribeShown = Keyboard.addListener("keyboardDidShow", () => {
@@ -183,8 +215,8 @@ const LoginPage = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        
-          {!keyboardShown ? <View style={styles.textContainer}>
+        {!keyboardShown ? (
+          <View style={styles.textContainer}>
             <Text
               style={[styles.titleText, { fontFamily: "Montserrat_700Bold" }]}
             >
@@ -199,23 +231,23 @@ const LoginPage = () => {
               Postanite dio naše zajednice! Kreiranje naloga omogućava vam brz
               pristup sadržajima, interakciju s drugim korisnicima i mnogo više.
             </Text>
-          </View> : null}
-        
+          </View>
+        ) : null}
 
         <View style={[styles.inputsContainer]}>
+          {!focusedInput ? (
+            <TextInputWithIcon
+              placeholderText="Ime i Prezime"
+              iconSource={<Ionicons name="person-circle-outline" size={30} />}
+              handler={handleSetUserName}
+              inputType="name"
+              value={userName}
+              isError={isUserNameError}
+              onEndEditing={validateUserName}
+              setFocused={handleSettingFocusedInput}
+            />
+          ) : null}
 
-          {!focusedInput ? <TextInputWithIcon
-            placeholderText="Ime i Prezime"
-            iconSource={<Ionicons name="person-circle-outline" size={30} />}
-            handler={handleSetUserName}
-            inputType="name"
-            value={userName}
-            isError={isUserNameError}
-            onEndEditing={validateUserName}
-            setFocused={handleSettingFocusedInput}
-          /> : null}
-
-          
           <TextInputWithIcon
             placeholderText="Broj telefona (+387 6X XXX XXX)"
             iconSource={<Ionicons name="call" size={24} />}
@@ -227,7 +259,6 @@ const LoginPage = () => {
             setFocused={handleSettingFocusedInput}
           />
 
-         
           <TextInputWithIcon
             placeholderText="Vaš Email"
             iconSource={<Ionicons name="mail" size={24} />}
@@ -250,7 +281,6 @@ const LoginPage = () => {
             setFocused={handleSettingFocusedInput}
           />
 
-         
           <TextInputWithIcon
             placeholderText="Potvrdite vašu lozinku"
             iconSource={<Ionicons name="lock-closed" size={20} />}

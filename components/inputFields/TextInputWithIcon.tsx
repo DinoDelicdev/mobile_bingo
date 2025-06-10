@@ -7,7 +7,6 @@ import {
 import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
-
 interface TextInputWithIconPropType {
   placeholderText: string;
   iconSource: React.ReactNode;
@@ -63,12 +62,14 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
           placeholder={placeholderText}
           keyboardAppearance="light"
           scrollEnabled={true}
-          textContentType={inputType}
+          textContentType="password"
           onChangeText={handler}
           value={value}
           secureTextEntry={inputType === "password"}
           onEndEditing={onEndEditing}
-          keyboardType={inputType === "telephoneNumber" ? "phone-pad" : "default"}
+          keyboardType={
+            inputType === "telephoneNumber" ? "phone-pad" : "default"
+          }
           onFocus={() => {
             if (inputType === "password") {
               console.log("Focused on password input");
@@ -79,7 +80,11 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
           }}
         />
       </View>
-      {isError ? <Text>{errorMessages[inputType]}</Text> : null}
+      {isError ? (
+        <Text style={{ fontSize: 10, color: "red" }}>
+          {errorMessages[inputType]}
+        </Text>
+      ) : null}
     </View>
   );
 };
