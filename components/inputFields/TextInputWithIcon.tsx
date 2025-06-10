@@ -7,15 +7,24 @@ import {
 import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
+
 interface TextInputWithIconPropType {
   placeholderText: string;
   iconSource: React.ReactNode;
   handler: (text: string) => void;
-  inputType: "emailAddress" | "password" | "telephoneNumber";
+  inputType: "emailAddress" | "password" | "telephoneNumber" | "name";
   isError?: boolean;
   value: string;
   onEndEditing?: () => void;
+  setFocused?: (focused: boolean) => void;
 }
+
+const errorMessages = {
+  emailAddress: "Uneseni email nije u pravom formatu",
+  password: "Šifra mora biti duga najmanje 6 karaktera",
+  telephoneNumber: "Unesite ispravan broj telefona",
+  name: "Unesite ispravno ime",
+};
 
 const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
   placeholderText,
@@ -25,6 +34,7 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
   isError = false,
   value,
   onEndEditing,
+  setFocused = () => {},
 }) => {
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
@@ -59,9 +69,17 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
           secureTextEntry={inputType === "password"}
           onEndEditing={onEndEditing}
           keyboardType={inputType === "telephoneNumber" ? "phone-pad" : "default"}
+          onFocus={() => {
+            if (inputType === "password") {
+              console.log("Focused on password input");
+              setFocused(true);
+            } else {
+              setFocused(false);
+            }
+          }}
         />
       </View>
-      {isError ? inputType === "emailAddress" ? <Text>Uneseni email nije u pravom formatu</Text> : <Text>Sifra mora biti duga najmanje 6 karaktera</Text> : ""}
+      {isError ? <Text>{errorMessages[inputType]}</Text> : null}
     </View>
   );
 };
