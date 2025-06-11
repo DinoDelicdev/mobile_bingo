@@ -28,6 +28,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { height } = Dimensions.get("window");
 
+interface ScrollEvent {
+    nativeEvent: {
+      contentOffset: {
+        y: number;
+      };
+    };
+  }
+
 const LoginPage = () => {
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [selectedSex, setSelectedSex] = useState<string | null>(null);
@@ -46,12 +54,24 @@ const LoginPage = () => {
   const [isUserNameError, setIsUserNameError] = useState(false);
   const [focusedInput, setFocusedInput] = useState(false);
 
+
+  // State to track scroll offset
+  const [scrollOffsetY, setScrollOffsetY] = useState(0);
+
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
     Montserrat_700Bold,
     Montserrat_400Regular,
     Montserrat_500Medium,
   });
+
+  
+
+  const handleScroll = (event: ScrollEvent): void => {
+    const { contentOffset } = event.nativeEvent;
+    console.log("Scroll offset Y:", contentOffset.y);
+    setScrollOffsetY(contentOffset.y);
+  };
 
   const validateEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -80,7 +100,8 @@ const LoginPage = () => {
 
   const validatePhoneNumber = () => {
     const phoneRegex = /^\+?\d{10,15}$/;
-    const isValid = phoneRegex.test(userPhoneNumber);
+    const doesPhoneNumberIsFromBosnia = userPhoneNumber.startsWith("+3876")
+    const isValid = phoneRegex.test(userPhoneNumber) && doesPhoneNumberIsFromBosnia;
     setIsPhoneNumberError(!isValid);
     return isValid;
   };
@@ -206,6 +227,8 @@ const LoginPage = () => {
         adjustRight={20}
       />
       <ScrollView
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={[
           styles.scrollViewContent,
           {
@@ -215,17 +238,17 @@ const LoginPage = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {!keyboardShown ? (
+        {(!keyboardShown) ? (
           <View style={styles.textContainer}>
             <Text
-              style={[styles.titleText, { fontFamily: "Montserrat_700Bold" }]}
+              style={[styles.titleText, { fontFamily: "Montserrat_700Bold", opacity: scrollOffsetY > 30 ? 0.2 : 1 }]}
             >
               Registracija
             </Text>
             <Text
               style={[
                 styles.subtitleText,
-                { fontFamily: "Montserrat_400Regular" },
+                { fontFamily: "Montserrat_400Regular", opacity: scrollOffsetY > 50 ? 0.2 : 1  },
               ]}
             >
               Postanite dio naše zajednice! Kreiranje naloga omogućava vam brz

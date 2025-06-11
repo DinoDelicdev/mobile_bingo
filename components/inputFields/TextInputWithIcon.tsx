@@ -78,6 +78,9 @@ const TextInputWithIcon: React.FC<TextInputWithIconPropType> = ({
               setFocused(false);
             }
           }}
+          onBlur={() => {
+            setFocused(false);
+          }}
         />
       </View>
       {isError ? (
