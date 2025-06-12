@@ -1,6 +1,7 @@
 import Carousel from "@/components/carousel/Carousel";
 import DiscountItem from "@/components/discountItem/DiscountItem";
 import MainPageHeaders from "@/components/ovalHeaders/MainPageHeaders";
+import SensationItem from "@/components/sensationItem/SensationItem";
 import { Images } from "@/constants/Images";
 import {
   Montserrat_400Regular,
@@ -9,14 +10,34 @@ import {
   Montserrat_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/montserrat";
+import { Asset } from "expo-asset";
 import { Image } from "expo-image";
-// --- CHANGE: Import Dimensions ---
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-// --- CHANGE: Get screen height ---
 const { height: screenHeight } = Dimensions.get("window");
 
+// Helper function to preload images (no changes here)
+function cacheImages(images: (string | number)[]) {
+  return images.map((image) => {
+    if (typeof image === "string") {
+      return Image.prefetch(image);
+    } else {
+      return Asset.fromModule(image).downloadAsync();
+    }
+  });
+}
+
 export default function HomeScreen() {
+  const [isAppReady, setAppReady] = useState(false);
+
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
     Montserrat_700Bold,
@@ -24,81 +45,143 @@ export default function HomeScreen() {
     Montserrat_500Medium,
   });
 
+  // Preload images in the background
+  useEffect(() => {
+    async function prepare() {
+      await cacheImages([Images.heroImage]);
+    }
+    prepare();
+  }, []);
+
+  // --- NEW: This function is called when the layout is calculated ---
+  // We only set the app as "ready" when both fonts are loaded AND
+  // the layout calculation is complete.
+  const onLayout = () => {
+    if (fontsLoaded) {
+      setAppReady(true);
+    }
+  };
+
+  // First, we must wait for fonts to load. Without them, the layout
+  // calculation will be incorrect. Show a loader while this happens.
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
   }
+
+  // --- NEW: Render the layout but keep it hidden until it's ready ---
+  // This prevents the "bouncy" effect.
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Added zIndex to ensure header stays on top */}
-      <View style={{ zIndex: 1 }}>
-        <MainPageHeaders />
-      </View>
-
-      {/* This container holds both the image and the overlapping carousel */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={Images.heroImage}
-          style={styles.heroImage}
-          contentFit="contain"
-        />
-        <View style={styles.imageTextContainer}>
-          <Text style={styles.titleText}>Dobro došli</Text>
-          <Text style={styles.subtitleText}>
-            Tvoja pametna kupovina počinje ovdje - akcije, uštede i
-            personalizovane ponude.
-          </Text>
+    <View style={styles.rootContainer}>
+      <ScrollView
+        style={{ opacity: isAppReady ? 1 : 0 }} // Content is invisible until ready
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        onLayout={onLayout} // Triggers readiness when layout is calculated
+      >
+        <View style={{ zIndex: 1 }}>
+          <MainPageHeaders />
         </View>
 
-        {/* The Carousel is positioned absolutely relative to the imageContainer */}
-        <View style={styles.carouselWrapper}>
-          <Carousel itemsPerInterval={2}>
-            <DiscountItem key="carousel-item-1" />
-            <DiscountItem key="carousel-item-2" />
-            <DiscountItem key="carousel-item-3" />
-            <DiscountItem key="carousel-item-4" />
-          </Carousel>
+        <View style={styles.imageContainer}>
+          <Image
+            source={Images.heroImage}
+            style={styles.heroImage}
+            contentFit="contain"
+          />
+          <View style={styles.imageTextContainer}>
+            <Text style={styles.titleText}>Dobro došli</Text>
+            <Text style={styles.subtitleText}>
+              Tvoja pametna kupovina počinje ovdje - akcije, uštede i
+              personalizovane ponude.
+            </Text>
+          </View>
+          <View style={styles.carouselWrapper}>
+            <Carousel itemsPerInterval={2}>
+              <DiscountItem key="carousel-item-1" />
+              <DiscountItem key="carousel-item-2" />
+              <DiscountItem key="carousel-item-3" />
+            </Carousel>
+          </View>
         </View>
-      </View>
 
-      {/* These items are now part of the main scroll flow */}
-      <View style={styles.bottomContent}>
-        <DiscountItem key="bottom-item-1" />
-        <DiscountItem key="bottom-item-2" />
-        <DiscountItem key="bottom-item-3" />
-      </View>
-    </ScrollView>
+        <View style={styles.middleGraySectionContainer}>
+          <View style={{ width: "80%", padding: 10 }}>
+            <Text
+              style={{
+                fontFamily: "Montserrat_800ExtraBold",
+                fontSize: 30,
+                // color: Colors.bingo_main,
+              }}
+            >
+              SENZACIJA
+            </Text>
+            <Text
+              style={{
+                fontFamily: "Montserrat_400Regular",
+                fontSize: 16,
+                marginTop: 10,
+              }}
+            >
+              Samo za tebe - najatraktivnije ponude iz naše kataloške akcije.
+            </Text>
+          </View>
+          <View style={styles.sensationCarouselWrapper}>
+            <Carousel itemsPerInterval={1}>
+              <SensationItem key="carousel-item-10" />
+              <SensationItem key="carousel-item-20" />
+              <SensationItem key="carousel-item-30" />
+            </Carousel>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* --- NEW: Show a loader on top until the layout is ready and faded in --- */}
+      {!isAppReady && (
+        <View style={[StyleSheet.absoluteFill, styles.loadingContainer]}>
+          <ActivityIndicator size="large" color="#000" />
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // --- NEW: Root container to hold both the content and the overlay loader ---
+  rootContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center", // Match your page's background color
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
   },
   contentContainer: {
     flexGrow: 1,
+    alignItems: "center",
   },
   imageContainer: {
     height: screenHeight * 0.66,
     width: "100%",
-    marginTop: - (screenHeight * 0.1),
+    marginTop: -(screenHeight * 0.1),
     position: "relative",
+    marginBottom: screenHeight * 0.1,
   },
   carouselWrapper: {
     position: "absolute",
-    bottom: - (screenHeight * 0.1),
-    height: screenHeight * 0.3,
+    bottom: -(screenHeight * 0.2),
+    height: screenHeight * 0.4,
     width: "100%",
   },
-  bottomContent: {
-    marginTop: screenHeight * 0.08,
-    paddingHorizontal: 10,
-    gap: 10,
-  },
-  // --- CHANGES END HERE ---
+
   heroImage: { width: "100%", height: "100%" },
   imageTextContainer: {
     width: "50%",
@@ -115,5 +198,22 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat_400Regular",
     fontSize: 16,
     marginTop: 10,
+  },
+  middleGraySectionContainer: {
+    marginTop: screenHeight * 0.16,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    minHeight: screenHeight * 0.3,
+    alignItems: "center",
+    backgroundColor: "#f4f4f4", // Light gray background
+    gap: 10,
+    width: "95%",
+    borderRadius: 20,
+    marginBottom: screenHeight * 0.3,
+  },
+
+  sensationCarouselWrapper: {
+    width: "100%",
+    height: screenHeight * 0.65,
   },
 });

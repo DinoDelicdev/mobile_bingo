@@ -4,5 +4,6 @@ export const Colors = {
   bingo_black: "#000",
   bingo_white: "#FFF",
   bingo_gray: "#9D9C9C",
+  bingo_yellow: "#FFF600",
   bingo_input_background: "#F4F4F4"
 };
