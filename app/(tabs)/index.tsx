@@ -1,5 +1,7 @@
 import Carousel from "@/components/carousel/Carousel";
 import DiscountItem from "@/components/discountItem/DiscountItem";
+import FreshItem from "@/components/freshItem/FreshItem";
+import MainHeroImage from "@/components/mainHeroImage/MainHeroImage";
 import MainPageHeaders from "@/components/ovalHeaders/MainPageHeaders";
 import SensationItem from "@/components/sensationItem/SensationItem";
 import { Images } from "@/constants/Images";
@@ -19,6 +21,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -35,8 +38,11 @@ function cacheImages(images: (string | number)[]) {
   });
 }
 
+const discountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
 export default function HomeScreen() {
   const [isAppReady, setAppReady] = useState(false);
+  const [displayedItems, setDisplayedItems] = useState<number[]>([]);
 
   const [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
@@ -45,12 +51,15 @@ export default function HomeScreen() {
     Montserrat_500Medium,
   });
 
-  // Preload images in the background
   useEffect(() => {
     async function prepare() {
       await cacheImages([Images.heroImage]);
     }
     prepare();
+  }, []);
+
+  useEffect(() => {
+    setDisplayedItems(discountItems.slice(0, 4));
   }, []);
 
   // --- NEW: This function is called when the layout is calculated ---
@@ -72,8 +81,6 @@ export default function HomeScreen() {
     );
   }
 
-  // --- NEW: Render the layout but keep it hidden until it's ready ---
-  // This prevents the "bouncy" effect.
   return (
     <View style={styles.rootContainer}>
       <ScrollView
@@ -86,7 +93,7 @@ export default function HomeScreen() {
           <MainPageHeaders />
         </View>
 
-        <View style={styles.imageContainer}>
+        {/* <View style={styles.imageContainer}>
           <Image
             source={Images.heroImage}
             style={styles.heroImage}
@@ -106,26 +113,14 @@ export default function HomeScreen() {
               <DiscountItem key="carousel-item-3" />
             </Carousel>
           </View>
-        </View>
+        </View> */}
+
+        <MainHeroImage />
 
         <View style={styles.middleGraySectionContainer}>
-          <View style={{ width: "80%", padding: 10 }}>
-            <Text
-              style={{
-                fontFamily: "Montserrat_800ExtraBold",
-                fontSize: 30,
-                // color: Colors.bingo_main,
-              }}
-            >
-              SENZACIJA
-            </Text>
-            <Text
-              style={{
-                fontFamily: "Montserrat_400Regular",
-                fontSize: 16,
-                marginTop: 10,
-              }}
-            >
+          <View style={{ width: "90%", padding: 10 }}>
+            <Text style={styles.mainSectionTitleText}>SENZACIJA</Text>
+            <Text style={styles.mainSectionSubtitleText}>
               Samo za tebe - najatraktivnije ponude iz naše kataloške akcije.
             </Text>
           </View>
@@ -136,6 +131,69 @@ export default function HomeScreen() {
               <SensationItem key="carousel-item-30" />
             </Carousel>
           </View>
+
+          <View style={styles.discountItemsList}>
+            {displayedItems.map((item) => (
+              <DiscountItem key={`discount-item-${item}`} />
+            ))}
+          </View>
+          {discountItems.length !== displayedItems.length ? (
+            <TouchableOpacity
+              style={{
+                width: "100%",
+                height: 50,
+                backgroundColor: "black",
+                borderRadius: 18,
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 10,
+              }}
+              onPress={() => {
+                // Load more items when the button is pressed
+                setDisplayedItems((prev) => [
+                  ...prev,
+                  ...discountItems.slice(prev.length, prev.length + 4),
+                ]);
+              }}
+            >
+              <Text style={{ color: "white" }}>Učitaj još Artikala</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        <View style={styles.freshCornerSectionContainer}>
+          <View
+            style={{
+              // width: "90%",
+              padding: 10,
+              paddingBottom: 25,
+              borderBottomWidth: 1,
+            }}
+          >
+            <Text style={styles.mainSectionTitleText}>
+              Predstavljamo Bingo odjele
+            </Text>
+            <Text style={styles.mainSectionSubtitleText}>
+              i super ponudu na odjelima svježeg
+            </Text>
+          </View>
+          <View style={{ width: "100%", alignItems: "center" }}>
+            <FreshItem />
+          </View>
+          <View
+            style={{
+              // width: "90%",
+              padding: 10,
+              paddingBottom: 25,
+            }}
+          >
+            <Text style={styles.mainSectionSubtitleText}>
+              Ne propustite priliku za uštedu i razveselite sebe i svoje
+              najdraže kvalitetnim proizvodima po super niskim cijenama.{" "}
+            </Text>
+          </View>
+          <TouchableOpacity></TouchableOpacity>
+
         </View>
       </ScrollView>
 
@@ -154,7 +212,7 @@ const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center", // Match your page's background color
+    alignItems: "center",
   },
   loadingContainer: {
     flex: 1,
@@ -205,15 +263,43 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     minHeight: screenHeight * 0.3,
     alignItems: "center",
-    backgroundColor: "#f4f4f4", // Light gray background
+    backgroundColor: "#f4f4f4",
     gap: 10,
     width: "95%",
     borderRadius: 20,
-    marginBottom: screenHeight * 0.3,
+    marginBottom: 20,
+  },
+
+  mainSectionTitleText: {
+    fontFamily: "Montserrat_800ExtraBold",
+    fontSize: 30,
+    // color: Colors.bingo_main,
+  },
+
+  mainSectionSubtitleText: {
+    fontFamily: "Montserrat_400Regular",
+    fontSize: 15,
+    marginTop: 10,
   },
 
   sensationCarouselWrapper: {
     width: "100%",
     height: screenHeight * 0.65,
+  },
+
+  discountItemsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    gap: 10,
+    width: "100%",
+    paddingHorizontal: 5,
+  },
+  freshCornerSectionContainer: {
+    width: "95%",
+    minHeight: screenHeight * 0.3,
+    // backgroundColor: "pink",
+    alignItems: "center",
+    marginBottom: screenHeight * 0.3,
   },
 });

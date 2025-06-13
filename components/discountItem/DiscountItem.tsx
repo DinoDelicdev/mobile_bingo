@@ -120,11 +120,12 @@ export default DiscountItem;
 const styles = StyleSheet.create({
   // --- SHADOW added here ---
   discountItemContainer: {
-    width: width * 0.43,
+    width: width * 0.42,
     height: height * 0.35,
     backgroundColor: "white",
     alignItems: "center",
     borderRadius: 20,
+    marginBottom: 20,
     // For Android shadow
     elevation: 5, // <-- Here's the shadow for Android
     // For iOS shadow
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   },
   itemTitleText: {
     fontFamily: "Montserrat_500Medium",
-    fontSize: 14,
+    fontSize: 13,
     textDecorationLine: "underline",
   },
   pricesContainer: {
